@@ -1928,9 +1928,29 @@
    ========================================================================== */
 
 /* ==========================================================================
-   1. Section Base & Ambient Background
+   Global Scroll Progress Bar & Work Ambient Background
    ========================================================================== */
-   .work-section {
+.scroll-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 0%;
+    background: linear-gradient(90deg, #a855f7, #ec4899, #06b6d4, #a855f7);
+    background-size: 300% 100%;
+    z-index: 99999;
+    pointer-events: none;
+    box-shadow: 0 0 14px rgba(168, 85, 247, 0.8), 0 0 28px rgba(6, 182, 212, 0.5);
+    animation: progressGradientMove 5s linear infinite;
+    transition: width 0.08s ease-out;
+}
+
+@keyframes progressGradientMove {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 300% 0%; }
+}
+
+.work-section {
     position: relative;
     width: 100%;
     min-height: 100vh;
@@ -1941,11 +1961,35 @@
     box-sizing: border-box;
 }
 
+.work-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    background: radial-gradient(circle 600px at var(--work-mouse-x, 50%) var(--work-mouse-y, 30%), rgba(168, 85, 247, 0.09) 0%, rgba(6, 182, 212, 0.05) 45%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+.work-section.is-hovered::before {
+    opacity: 1;
+}
+
 .work-ambient-canvas {
     position: absolute;
     inset: 0;
     pointer-events: none;
     overflow: hidden;
+    z-index: 1;
+}
+
+.work-star-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
     z-index: 1;
 }
 
@@ -2175,25 +2219,48 @@
     z-index: 5;
     max-width: 1300px;
     margin: 0 auto 50px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 12px;
+    gap: 6px;
     flex-wrap: wrap;
+    background: rgba(10, 11, 24, 0.65);
+    padding: 6px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+}
+
+.work-filter-pill-indicator {
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    left: 0;
+    width: 0;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.35), rgba(6, 182, 212, 0.25));
+    border: 1px solid rgba(168, 85, 247, 0.65);
+    box-shadow: 0 0 25px rgba(168, 85, 247, 0.35), inset 0 0 14px rgba(168, 85, 247, 0.25);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
 }
 
 .work-filter-btn {
-    background: rgba(255, 255, 255, 0.035);
-    border: 1px solid rgba(255, 255, 255, 0.09);
+    position: relative;
+    z-index: 2;
+    background: transparent;
+    border: 1px solid transparent;
     color: rgba(255, 255, 255, 0.7);
     font-family: "Inter", sans-serif;
     font-size: 13px;
     font-weight: 500;
-    padding: 10px 22px;
+    padding: 9px 20px;
     border-radius: 999px;
     cursor: pointer;
-    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -2202,18 +2269,17 @@
 }
 
 .work-filter-btn:hover {
-    background: rgba(255, 255, 255, 0.09);
     color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.06);
     transform: translateY(-2px);
 }
 
 .work-filter-btn.active {
-    background: linear-gradient(135deg, rgba(168, 85, 247, 0.28), rgba(6, 182, 212, 0.2));
     color: #ffffff;
-    border-color: rgba(168, 85, 247, 0.7);
-    box-shadow: 0 0 25px rgba(168, 85, 247, 0.3);
-    transform: translateY(-2px);
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    transform: translateY(0);
 }
 
 .work-filter-count {
@@ -2224,6 +2290,13 @@
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.1);
     color: inherit;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease;
+}
+
+.work-filter-btn.active .work-filter-count {
+    background: rgba(168, 85, 247, 0.35);
+    color: #ffffff;
+    transform: scale(1.08);
 }
 
 /* ==========================================================================
@@ -2242,17 +2315,16 @@
 .work-card.span-7 { grid-column: span 7; }
 .work-card.span-5 { grid-column: span 5; }
 .work-card.span-4 { grid-column: span 4; }
-/* Add this to your existing Grid section */
 .work-card.span-6 { grid-column: span 6; }
 .work-card.span-8 { grid-column: span 8; }
 
 /* ==========================================================================
-   6. Card Styles (Container, Media, Badges, Body, Hover)
+   6. Card Styles (Container, Media, Badges, Body, Hover, 3D Depth)
    ========================================================================== */
 .work-card {
     position: relative;
     border-radius: 24px;
-    background: rgba(12, 13, 24, 0.65);
+    background: rgba(12, 13, 24, 0.7);
     border: 1px solid rgba(255, 255, 255, 0.08);
     overflow: hidden;
     display: flex;
@@ -2263,32 +2335,72 @@
         transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
         box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
         border-color 0.45s cubic-bezier(0.16, 1, 0.3, 1),
-        opacity 0.4s ease;
+        opacity 0.4s ease,
+        filter 0.4s ease;
     transform-style: preserve-3d;
-    perspective: 1000px;
+    perspective: 1200px;
     cursor: pointer;
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+    will-change: transform, opacity, box-shadow;
+}
+
+.work-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    padding: 1px;
+    background: linear-gradient(var(--sheen-angle, 135deg), rgba(168, 85, 247, 0.45), transparent 45%, transparent 60%, rgba(6, 182, 212, 0.45));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0.4;
+    transition: opacity 0.4s ease;
+    z-index: 8;
 }
 
 .work-card:hover {
     border-color: rgba(168, 85, 247, 0.55);
     box-shadow: 
-        0 30px 70px rgba(0, 0, 0, 0.8),
-        0 0 35px rgba(168, 85, 247, 0.28),
-        0 0 70px rgba(6, 182, 212, 0.12);
+        0 30px 80px rgba(0, 0, 0, 0.85),
+        0 0 40px rgba(168, 85, 247, 0.3),
+        0 0 80px rgba(6, 182, 212, 0.15);
+}
+
+.work-card:hover::before {
+    opacity: 1;
+    background: linear-gradient(var(--sheen-angle, 135deg), rgba(168, 85, 247, 0.8), rgba(236, 72, 153, 0.6), rgba(6, 182, 212, 0.8));
 }
 
 .work-card.is-filtered-out {
     display: none !important;
 }
 
-/* Card Media */
+/* Holographic Sheen Layer */
+.work-card-sheen {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    mix-blend-mode: color-dodge;
+    background: radial-gradient(circle 380px at var(--glare-x, 50%) var(--glare-y, 50%), rgba(216, 180, 254, 0.28), rgba(56, 189, 248, 0.18) 35%, transparent 70%);
+    transition: opacity 0.35s ease;
+    z-index: 5;
+}
+
+.work-card:hover .work-card-sheen {
+    opacity: 1;
+}
+
+/* Layered 3D Parallax Elements inside Card */
 .work-card-media-box {
     position: relative;
     width: 100%;
     height: 340px;
     overflow: hidden;
     background: #000000;
+    transform-style: preserve-3d;
 }
 
 .work-card.span-7 .work-card-media-box {
@@ -2349,6 +2461,7 @@
     align-items: center;
     z-index: 6;
     pointer-events: none;
+    transform: translateZ(28px);
 }
 
 .work-category-badge {
@@ -2383,7 +2496,7 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) scale(0.85);
+    transform: translate(-50%, -50%) translateZ(30px) scale(0.85);
     opacity: 0;
     z-index: 7;
     padding: 12px 24px;
@@ -2406,7 +2519,7 @@
 
 .work-card:hover .work-card-inspect-action {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+    transform: translate(-50%, -50%) translateZ(42px) scale(1);
 }
 
 .work-video-indicator {
@@ -2446,6 +2559,7 @@
     flex-grow: 1;
     z-index: 4;
     background: rgba(12, 13, 24, 0.95);
+    transform-style: preserve-3d;
 }
 
 .work-card-index {
@@ -2456,6 +2570,7 @@
     color: #a855f7;
     margin-bottom: 8px;
     text-transform: uppercase;
+    transform: translateZ(16px);
 }
 
 .work-card-title {
@@ -2467,6 +2582,7 @@
     line-height: 1.3;
     margin: 0 0 10px;
     transition: color 0.3s ease;
+    transform: translateZ(22px);
 }
 
 .work-card:hover .work-card-title {
@@ -2478,6 +2594,7 @@
     line-height: 1.65;
     color: rgba(255, 255, 255, 0.65);
     margin: 0 0 18px;
+    transform: translateZ(12px);
 }
 
 .work-tech-tags {
@@ -2485,6 +2602,7 @@
     flex-wrap: wrap;
     gap: 7px;
     margin-bottom: 22px;
+    transform: translateZ(14px);
 }
 
 .work-tech-pill {
@@ -2508,6 +2626,7 @@
     margin-top: auto;
     text-decoration: none;
     transition: all 0.3s ease;
+    transform: translateZ(16px);
 }
 
 .work-card-footer-cta svg {
@@ -2670,6 +2789,54 @@
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
 }
 
+/* Modal Previous & Next Nav Controls */
+.work-modal-nav-btn {
+    position: absolute;
+    top: 230px;
+    z-index: 10;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(12, 13, 24, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.65);
+}
+
+.work-modal-nav-btn:hover {
+    background: #ffffff;
+    color: #02030a;
+    transform: scale(1.12);
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.45);
+}
+
+.work-modal-nav-btn.prev {
+    left: 20px;
+}
+
+.work-modal-nav-btn.next {
+    right: 20px;
+}
+
+.work-modal-counter {
+    font-family: "Unbounded", sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.55);
+    padding: 4px 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 /* >>> CRITICAL FIX FOR FULL IMAGE VISIBILITY <<< */
 .work-modal-media-wrap {
     position: relative;
@@ -2828,6 +2995,20 @@
         height: auto;
         max-height: 50vh;
         object-fit: contain; /* Ensure full image visibility on mobile */
+    }
+
+    .work-modal-nav-btn {
+        width: 38px;
+        height: 38px;
+        top: 180px;
+    }
+
+    .work-modal-nav-btn.prev {
+        left: 10px;
+    }
+
+    .work-modal-nav-btn.next {
+        right: 10px;
     }
 }
 
@@ -5238,6 +5419,11 @@
 
 <body>
 
+    <!-- =====================================================
+         PAGE SCROLL PROGRESS BAR
+    ====================================================== -->
+    <div class="scroll-progress-bar" id="scrollProgressBar"></div>
+
 
     <!-- =====================================================
          CURSOR LIGHT
@@ -5585,8 +5771,9 @@
         id="work"
     >
 
-        <!-- Ambient Background Orbs -->
+        <!-- Ambient Background Orbs & Cosmic Stardust Canvas -->
         <div class="work-ambient-canvas">
+            <canvas id="workStarCanvas" class="work-star-canvas"></canvas>
             <div class="work-orb work-orb-1"></div>
             <div class="work-orb work-orb-2"></div>
             <div class="work-orb work-orb-3"></div>
@@ -5613,7 +5800,7 @@
                     Selected Projects
                 </div>
                 <div class="work-stat-capsule">
-                    <span>5 Featured Real-time Artifacts</span>
+                    <span>12 Featured Real-time Artifacts</span>
                 </div>
             </div>
 
@@ -5628,54 +5815,56 @@
 
         <!-- Interactive Category Filter Bar -->
         <div class="work-filter-bar work-reveal">
+            <div class="work-filter-pill-indicator"></div>
             <button class="work-filter-btn active" data-filter="all">
                 <span>All Projects</span>
-                <span class="work-filter-count">4</span>
+                <span class="work-filter-count">12</span>
             </button>
             <button class="work-filter-btn" data-filter="fashion">
                 <span>Fashion</span>
-                <span class="work-filter-count">1</span>
+                <span class="work-filter-count">5</span>
             </button>
             <button class="work-filter-btn" data-filter="perfume">
                 <span>Perfume</span>
-                <span class="work-filter-count">1</span>
+                <span class="work-filter-count">2</span>
             </button>
             <button class="work-filter-btn" data-filter="furniture">
                 <span>Furniture</span>
-                <span class="work-filter-count">1</span>
+                <span class="work-filter-count">3</span>
             </button>
             <button class="work-filter-btn" data-filter="bag">
                 <span>Bag</span>
-                <span class="work-filter-count">1</span>
+                <span class="work-filter-count">2</span>
             </button>
         </div>
 
         <!-- Showcase Project Grid -->
         <div class="work-grid">
 
-            <!-- PROJECT 01: VIRTUAL SOLITUDE (Wide Hero Feature) -->
+            <!-- PROJECT 01: FASHION WHISPERING (Wide Hero Feature) -->
             <article
                 class="work-card span-7 work-reveal"
-                data-category="vr"
+                data-category="fashion"
                 data-title="Fashion Whispering"
                 data-category-label="Fashion"
                 data-year="2026"
                 data-media-type="image"
                 data-media-src="3.jpeg"
                 data-desc="A stunning visual exploration merging avant-garde fashion design with surreal digital artistry. The flowing, layered gown captures the movement of cascading waters and blooming petals, rendered with rich chiaroscuro lighting and cinematic depth."
-                data-role="digital ai ART"
+                data-role="Digital AI Art"
                 data-client="Metaverse Art Biennale"
-                data-tech="AI"
-                
+                data-tech="AI · Midjourney · Photoshop"
+                data-format="Digital Fashion Editorial"
             >
                 <div class="work-card-media-box">
                     <img
                         class="work-card-asset"
                         src="3.jpeg"
-                        alt="Virtual Solitude - Real-time VR Simulation"
+                        alt="Fashion Whispering - Digital Fashion Art"
                         loading="lazy"
                     >
                     <div class="work-card-glare"></div>
+                    <div class="work-card-sheen"></div>
                     <div class="work-card-overlay-gradient"></div>
 
                     <div class="work-card-media-badges">
@@ -5684,46 +5873,56 @@
                     </div>
 
                     <div class="work-card-inspect-action">
-                        <span>Fashion</span>
-                        
+                        <span>Inspect Project</span>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <path d="M7 17l9.2-9.2M17 17V8H8"/>
-                            
                         </svg>
                     </div>
                 </div>
 
                 <div class="work-card-body">
                     <div class="work-card-index">Archive // 01</div>
-                    <h3 class="work-card-title">Fashion whispering</h3>
+                    <h3 class="work-card-title">Fashion Whispering</h3>
                     <p class="work-card-desc">
                         A stunning visual exploration merging avant-garde fashion design with surreal digital artistry. The flowing, layered gown captures the movement of cascading waters and blooming petals, rendered with rich chiaroscuro lighting and cinematic depth.
                     </p>
-                   
+                    <div class="work-tech-tags">
+                        <span class="work-tech-pill">AI Generative</span>
+                        <span class="work-tech-pill">Digital Art</span>
+                    </div>
+                    <div class="work-card-footer-cta">
+                        <span>View Project Case</span>
+                        <svg viewBox="0 0 24 24">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </div>
+                </div>
             </article>
-            <!-- PROJECT 03: CELESTIAL ARBOR (3D Environment) -->
+            <!-- PROJECT 02: ETHEREAL GOLD & THE WHITE PEACOCK -->
             <article
-                class="work-card span-4 work-reveal"
-                data-category="Fashion"
+                class="work-card span-5 work-reveal"
+                data-category="fashion"
                 data-title="Ethereal Gold and the White Peacock"
                 data-category-label="Fashion"
                 data-year="2026"
                 data-media-type="image"
                 data-media-src="2.jpeg"
                 data-desc="A stunning, regal figure dressed in an opulent, flowing golden gown, adorned with detailed leaf and peacock feather motifs at the hem. The figure, with intricate gold headwear and long blonde hair, stands majestically. Beside her is a magnificent, long-tailed white peacock, creating a sense of divine or royal grace. The pair is set against a rich, textured red background featuring delicate, hanging golden willow-like branches, giving the scene a dreamlike, celestial, and luxurious atmosphere. The artwork appears as a detailed digital portrait or an illustration."
-                data-role="Environment Artist "
+                data-role="Environment Artist"
                 data-client="Solaris Virtual Records"
-                data-tech="AI"
-                
+                data-tech="AI · Digital Illustration"
+                data-format="Haute Couture Spatial Portrait"
             >
                 <div class="work-card-media-box">
                     <img
                         class="work-card-asset"
                         src="2.jpeg"
-                        alt="Celestial Arbor - Bioluminescent Tree"
+                        alt="Ethereal Gold and the White Peacock"
                         loading="lazy"
                     >
                     <div class="work-card-glare"></div>
+                    <div class="work-card-sheen"></div>
                     <div class="work-card-overlay-gradient"></div>
 
                     <div class="work-card-media-badges">
@@ -5732,7 +5931,7 @@
                     </div>
 
                     <div class="work-card-inspect-action">
-                        <span>Fashion</span>
+                        <span>Inspect Project</span>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <path d="M7 17l9.2-9.2M17 17V8H8"/>
                         </svg>
@@ -5743,9 +5942,12 @@
                     <div class="work-card-index">Archive // 02</div>
                     <h3 class="work-card-title">Ethereal Gold and the White Peacock</h3>
                     <p class="work-card-desc">
-                        A stunning, regal figure dressed in an opulent, flowing golden gown, adorned with detailed leaf and peacock feather motifs at the hem. The figure, with intricate gold headwear and long blonde hair, stands majestically. Beside her is a magnificent, long-tailed white peacock, creating a sense of divine or royal grace. The pair is set against a rich, textured red background featuring delicate, hanging golden willow-like branches, giving the scene a dreamlike, celestial, and luxurious atmosphere. The artwork appears as a detailed digital portrait or an illustration
+                        A stunning, regal figure dressed in an opulent, flowing golden gown, adorned with detailed leaf and peacock feather motifs at the hem. Beside her is a magnificent, long-tailed white peacock, set against a rich textured background.
                     </p>
-                    
+                    <div class="work-tech-tags">
+                        <span class="work-tech-pill">AI Couture</span>
+                        <span class="work-tech-pill">Digital Art</span>
+                    </div>
                     <div class="work-card-footer-cta">
                         <span>View Project Case</span>
                         <svg viewBox="0 0 24 24">
@@ -5756,11 +5958,10 @@
                 </div>
             </article>
 
-
-            <!-- PROJECT 04: ETHEREAL SANCTUARY (VR Spatial Experience) -->
+            <!-- PROJECT 03: BRITISH ROOM (Furniture) -->
             <article
-                class="work-card span-4 work-reveal"
-                data-category="Furniture"
+                class="work-card span-6 work-reveal"
+                data-category="furniture"
                 data-title="British Room"
                 data-category-label="Furniture"
                 data-year="2026"
@@ -5769,16 +5970,18 @@
                 data-desc="A miniature Victorian boudoir viewed through a hyper-dimensional lens, featuring volumetric lighting and custom glass-dispersion shaders. Designed with procedural fabric physics and real-time ray-traced ambient occlusion to create an immersive, dreamlike juxtaposition between the giant observer and the enclosed world."
                 data-role="Interactive Art Director"
                 data-client="Spatial Horizons Foundation"
-                
+                data-tech="TouchDesigner · 3D Interior"
+                data-format="Spatial Interior Installation"
             >
                 <div class="work-card-media-box">
                     <img
                         class="work-card-asset"
                         src="WhatsApp Image 2026-09-16 at 2.46.38 PM.jpeg"
-                        alt="Ethereal Sanctuary - Avatar Communion"
+                        alt="British Room - Spatial Boudoir"
                         loading="lazy"
                     >
                     <div class="work-card-glare"></div>
+                    <div class="work-card-sheen"></div>
                     <div class="work-card-overlay-gradient"></div>
 
                     <div class="work-card-media-badges">
@@ -5787,7 +5990,7 @@
                     </div>
 
                     <div class="work-card-inspect-action">
-                        <span>Furniture</span>
+                        <span>Inspect Project</span>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <path d="M7 17l9.2-9.2M17 17V8H8"/>
                         </svg>
@@ -5798,11 +6001,11 @@
                     <div class="work-card-index">Archive // 03</div>
                     <h3 class="work-card-title">British Room</h3>
                     <p class="work-card-desc">
-                        A miniature Victorian boudoir viewed through a hyper-dimensional lens, featuring volumetric lighting and custom glass-dispersion shaders. Designed with procedural fabric physics and real-time ray-traced ambient occlusion to create an immersive, dreamlike juxtaposition between the giant observer and the enclosed world.
+                        A miniature Victorian boudoir viewed through a hyper-dimensional lens, featuring volumetric lighting and custom glass-dispersion shaders with procedural fabric physics.
                     </p>
                     <div class="work-tech-tags">
                         <span class="work-tech-pill">TouchDesigner</span>
-                        
+                        <span class="work-tech-pill">3D Interior</span>
                     </div>
                     <div class="work-card-footer-cta">
                         <span>View Project Case</span>
@@ -5814,11 +6017,10 @@
                 </div>
             </article>
 
-
-            <!-- PROJECT 05: SYNAPSE REVERIE (Generative Identity) -->
+            <!-- PROJECT 04: SYNAPSE REVERIE (Fashion / Neural Art) -->
             <article
-                class="work-card span-4 work-reveal"
-                data-category="3d"
+                class="work-card span-6 work-reveal"
+                data-category="fashion"
                 data-title="Synapse Reverie"
                 data-category-label="Fashion"
                 data-year="2025"
@@ -5827,7 +6029,8 @@
                 data-desc="Flames of neural data cascading from a cybernetic visor amidst an infinite blooming field. Synthesizing generative neural diffusion with real-time WebGL raymarching."
                 data-role="Generative Systems Architect"
                 data-client="NeuroArts Global Collective"
-                
+                data-tech="WebGL · Neural Diffusion"
+                data-format="Cybernetic Fashion Visual"
             >
                 <div class="work-card-media-box">
                     <img
@@ -5837,6 +6040,7 @@
                         loading="lazy"
                     >
                     <div class="work-card-glare"></div>
+                    <div class="work-card-sheen"></div>
                     <div class="work-card-overlay-gradient"></div>
 
                     <div class="work-card-media-badges">
@@ -5845,7 +6049,7 @@
                     </div>
 
                     <div class="work-card-inspect-action">
-                        <span>Fashion</span>
+                        <span>Inspect Project</span>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <path d="M7 17l9.2-9.2M17 17V8H8"/>
                         </svg>
@@ -5856,9 +6060,12 @@
                     <div class="work-card-index">Archive // 04</div>
                     <h3 class="work-card-title">Synapse Reverie</h3>
                     <p class="work-card-desc">
-                        Flames of neural data cascading from a cybernetic visor amidst an infinite blooming field.
+                        Flames of neural data cascading from a cybernetic visor amidst an infinite blooming field. Synthesizing generative neural diffusion with real-time WebGL raymarching.
                     </p>
-                    
+                    <div class="work-tech-tags">
+                        <span class="work-tech-pill">WebGL</span>
+                        <span class="work-tech-pill">Neural Art</span>
+                    </div>
                     <div class="work-card-footer-cta">
                         <span>View Project Case</span>
                         <svg viewBox="0 0 24 24">
@@ -5868,31 +6075,32 @@
                     </div>
                 </div>
             </article>
-
-        </div>
-        <div class="work-grid">
     
-            <!-- CARD 1: Large Feature (Span 7) -->
+            <!-- PROJECT 05: THE SUBMERGED HORIZON (Fashion) -->
             <div class="work-card span-7 work-reveal"
-                data-category="Fashion"
+                data-category="fashion"
                 data-title="The Submerged Horizon"
-                data-category-label="Web Experience"
+                data-category-label="Fashion"
                 data-year="2024"
                 data-media-type="image"
                 data-media-src="Gemini_Generated_Image_jnq1nwjnq1nwjnq1.jpg"
                 data-desc="A dystopian metropolis scene featuring a solitary figure standing atop a partially submerged vintage luxury vehicle amidst an atmospheric, fog-laden street. Designed with custom volumetric fog shaders, realistic water surface reflections, and dynamic lighting to capture a tense, cinematic mood."
-                
+                data-role="Digital Experience Designer"
+                data-client="Cinematic Horizons"
+                data-tech="Volumetric Shaders · Cinema 4D"
+                data-format="Cinematic Editorial Scene"
             >
                 <div class="work-card-media-box">
-                    <img src="Gemini_Generated_Image_jnq1nwjnq1nwjnq1.jpg" alt="Project 1" class="work-card-asset">
+                    <img src="Gemini_Generated_Image_jnq1nwjnq1nwjnq1.jpg" alt="The Submerged Horizon" class="work-card-asset" loading="lazy">
                     <div class="work-card-glare"></div>
+                    <div class="work-card-sheen"></div>
                     <div class="work-card-overlay-gradient"></div>
                     <div class="work-card-media-badges">
                         <span class="work-category-badge">Fashion</span>
                         <span class="work-year-badge">2026</span>
                     </div>
                     <div class="work-card-inspect-action">
-                        <span>Fashion</span>
+                        <span>Inspect Project</span>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
                     </div>
                     <div class="work-video-indicator">
@@ -5901,10 +6109,13 @@
                     </div>
                 </div>
                 <div class="work-card-body">
-                    <div class="work-card-index">01 / 11</div>
+                    <div class="work-card-index">Archive // 05</div>
                     <h3 class="work-card-title">The Submerged Horizon</h3>
-                    <p class="work-card-desc">A dystopian metropolis scene featuring a solitary figure standing atop a partially submerged vintage luxury vehicle amidst an atmospheric, fog-laden street. Designed with custom volumetric fog shaders, realistic water surface reflections, and dynamic lighting to capture a tense, cinematic mood.</p>
-                    
+                    <p class="work-card-desc">A dystopian metropolis scene featuring a solitary figure standing atop a partially submerged vintage luxury vehicle amidst an atmospheric, fog-laden street. Designed with volumetric fog shaders and realistic water reflections.</p>
+                    <div class="work-tech-tags">
+                        <span class="work-tech-pill">Volumetric Shaders</span>
+                        <span class="work-tech-pill">Cinema 4D</span>
+                    </div>
                     <div class="work-card-footer-cta">
                         <span>View Case Study</span>
                         <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -5912,37 +6123,42 @@
                 </div>
             </div>
         
-            <!-- CARD 2: Medium Feature (Span 5) -->
+            <!-- PROJECT 06: HARMONY IN THE ABSTRACT (Furniture) -->
             <div class="work-card span-5 work-reveal"
-                data-category="Furniture"
+                data-category="furniture"
                 data-title="Harmony in the Abstract"
-                data-category-label="Mobile App"
+                data-category-label="Furniture"
                 data-year="2026"
                 data-media-type="image"
                 data-media-src="Gemini_Generated_Image_fl05ccfl05ccfl05.jpg"
-                data-desc="A surreal conceptual landscape from The Solstice Collection,featuring a minimalist modern sofa resting on a tranquil white sand dune beneath surreal, fan-shaped terracotta and golden trees. Designed with warm sun-drenched lighting, soft atmospheric haze, and subtle water elements to evoke a serene, high-end editorial atmosphere.."
-                data-role="Mobile Developer"
-                data-client="DESIGNER POSTER"
-                
+                data-desc="A surreal conceptual landscape from The Solstice Collection, featuring a minimalist modern sofa resting on a tranquil white sand dune beneath surreal, fan-shaped terracotta and golden trees. Designed with warm sun-drenched lighting, soft atmospheric haze, and subtle water elements to evoke a serene, high-end editorial atmosphere."
+                data-role="Furniture Concept Designer"
+                data-client="Solstice Design Collective"
+                data-tech="Blender · Octane · 3D Furniture"
+                data-format="Surreal Furniture Showcase"
             >
                 <div class="work-card-media-box">
-                    <img src="Gemini_Generated_Image_fl05ccfl05ccfl05.jpg" alt="Project 2" class="work-card-asset">
+                    <img src="Gemini_Generated_Image_fl05ccfl05ccfl05.jpg" alt="Harmony in the Abstract" class="work-card-asset" loading="lazy">
                     <div class="work-card-glare"></div>
+                    <div class="work-card-sheen"></div>
                     <div class="work-card-overlay-gradient"></div>
                     <div class="work-card-media-badges">
-                        <span class="work-category-badge">Furniturre</span>
+                        <span class="work-category-badge">Furniture</span>
                         <span class="work-year-badge">2026</span>
                     </div>
                     <div class="work-card-inspect-action">
-                        <span>Furniture</span>
+                        <span>Inspect Project</span>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
                     </div>
                 </div>
                 <div class="work-card-body">
-                    <div class="work-card-index">02 / 11</div>
+                    <div class="work-card-index">Archive // 06</div>
                     <h3 class="work-card-title">Harmony in the Abstract</h3>
-                    <p class="work-card-desc">A surreal conceptual landscape from "The Solstice Collection," featuring a minimalist modern sofa resting on a tranquil white sand dune beneath surreal, fan-shaped terracotta and golden trees. Designed with warm sun-drenched lighting, soft atmospheric haze, and subtle water elements to evoke a serene, high-end editorial atmosphere.</p>
-                   
+                    <p class="work-card-desc">A surreal conceptual landscape featuring a minimalist modern sofa resting on a tranquil white sand dune beneath surreal, fan-shaped terracotta trees, evoking a serene, editorial atmosphere.</p>
+                    <div class="work-tech-tags">
+                        <span class="work-tech-pill">3D Furniture</span>
+                        <span class="work-tech-pill">Blender</span>
+                    </div>
                     <div class="work-card-footer-cta">
                         <span>View Case Study</span>
                         <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -5950,64 +6166,24 @@
                 </div>
             </div>
         
-            <!-- CARD 3: Small (Span 4) -->
+            <!-- PROJECT 07: ETHEREAL MIRAGE (Fashion) -->
             <div class="work-card span-4 work-reveal"
-                data-category="Fashion"
+                data-category="fashion"
                 data-title="Ethereal Mirage"
-                data-category-label="Branding"
+                data-category-label="Fashion"
                 data-year="2026"
                 data-media-type="image"
                 data-media-src="Gemini_Generated_Image_ysgd6uysgd6uysgd.jpg"
-                data-desc="A high-fashion digital editorial piece featuring an avant-garde gown with cascading pleated layers, intricate corsetry, and delicate floral patterns. Set against a moody, fog-veiled aquatic backdrop with dramatic chiaroscuro lighting and cinematic atmosphere.."
+                data-desc="A high-fashion digital editorial piece featuring an avant-garde gown with cascading pleated layers, intricate corsetry, and delicate floral patterns. Set against a moody, fog-veiled aquatic backdrop with dramatic chiaroscuro lighting and cinematic atmosphere."
                 data-role="Brand Designer & 3D Artist"
-                data-client="美丽的"
-                data-tech=" Figma"
-                data-format="Visual Identity"
+                data-client="Maison De Mirage"
+                data-tech="Figma · 3D Clo"
+                data-format="Haute Couture Visual Identity"
             >
                 <div class="work-card-media-box">
-                    <img src="Gemini_Generated_Image_ysgd6uysgd6uysgd.jpg" alt="Project 3" class="work-card-asset">
+                    <img src="Gemini_Generated_Image_ysgd6uysgd6uysgd.jpg" alt="Ethereal Mirage" class="work-card-asset" loading="lazy">
                     <div class="work-card-glare"></div>
-                    <div class="work-card-overlay-gradient"></div>
-                    <div class="work-card-media-badges">
-                        <span class="work-category-badge">Fashion</span>
-                        <span class="work-year-badge">2026</span>
-                    </div>
-                    <div class="work-card-inspect-action">
-                        <span>Fashion</span>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
-                    </div>
-                </div>
-                <div class="work-card-body">
-                    <div class="work-card-index">03 / 11</div>
-                    <h3 class="work-card-title">Ethereal Mirage</h3>
-                    <p class="work-card-desc">A high-fashion digital editorial piece featuring an avant-garde gown with cascading pleated layers, intricate corsetry, and delicate floral patterns. Set against a moody, fog-veiled aquatic backdrop with dramatic chiaroscuro lighting and cinematic atmosphere..</p>
-                    <div class="work-tech-tags">
-                        
-                        <span class="work-tech-pill">Figma</span>
-                    </div>
-                    <div class="work-card-footer-cta">
-                        <span>View Case Study</span>
-                        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                    </div>
-                </div>
-            </div>
-        
-            <!-- CARD 4: Small (Span 4) -->
-            <div class="work-card span-4 work-reveal"
-                data-category="Bag"
-                data-title="Spring collection"
-                data-category-label="E-Commerce"
-                data-year="2026"
-                data-media-type="image"
-                data-media-src="Image Codex 16 sept. 2026, 14_59_57.png"
-                data-desc="A premium e-commerce experience featuring 3D product viewers, interactive product showcases with 360-degree rotation, floating neon product cards, and a high-conversion dark-themed storefront design with glowing accent elements."
-                data-role="Commerce "
-                data-client="Lumina Retail"
-                
-            >
-                <div class="work-card-media-box">
-                    <img src="Image Codex 16 sept. 2026, 14_59_57.png" alt="Project 4" class="work-card-asset">
-                    <div class="work-card-glare"></div>
+                    <div class="work-card-sheen"></div>
                     <div class="work-card-overlay-gradient"></div>
                     <div class="work-card-media-badges">
                         <span class="work-category-badge">Fashion</span>
@@ -6019,50 +6195,12 @@
                     </div>
                 </div>
                 <div class="work-card-body">
-                    <div class="work-card-index">04 / 11</div>
-                    <h3 class="work-card-title">Spring collection </h3>
-                    <p class="work-card-desc">A premium e-commerce experience featuring 3D product viewers, interactive product showcases with 360-degree rotation, floating neon product cards, and a high-conversion dark-themed storefront design with glowing accent elements.</p>
-                    
-                    <div class="work-card-footer-cta">
-                        <span>View Case Study</span>
-                        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                    </div>
-                </div>
-            </div>
-        
-            <!-- CARD 5: Small (Span 4) -->
-            <div class="work-card span-4 work-reveal"
-                data-category="Purfume"
-                data-title="Éclat de Rubis"
-                data-category-label="SaaS"
-                data-year="2026"
-                data-media-type="image"
-                data-media-src="Image Codex 16 sept. 2026, 14_51_15.png"
-                data-desc="A luxury commercial fragrance campaign featuring an ornate amber-toned perfume bottle nestled among crystal prisms, fresh cherries, and rich forest foliage. Designed with dramatic, warm god-ray lighting, luminous refraction effects, and floating dust particles to evoke absolute elegance and mystery."
-                data-role="creativity"
-                data-client="Brand"
-                
-            >
-                <div class="work-card-media-box">
-                    <img src="Image Codex 16 sept. 2026, 14_51_15.png" alt="Project 5" class="work-card-asset">
-                    <div class="work-card-glare"></div>
-                    <div class="work-card-overlay-gradient"></div>
-                    <div class="work-card-media-badges">
-                        <span class="work-category-badge">Purfume</span>
-                        <span class="work-year-badge">2026</span>
-                    </div>
-                    <div class="work-card-inspect-action">
-                        <span>Purfume</span>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
-                    </div>
-                </div>
-                <div class="work-card-body">
-                    <div class="work-card-index">05 / 11</div>
-                    <h3 class="work-card-title">Éclat de Rubis</h3>
-                    <p class="work-card-desc">A luxury commercial fragrance campaign featuring an ornate amber-toned perfume bottle nestled among crystal prisms, fresh cherries, and rich forest foliage. Designed with dramatic, warm god-ray lighting, luminous refraction effects, and floating dust particles to evoke absolute elegance and mystery.</p>
+                    <div class="work-card-index">Archive // 07</div>
+                    <h3 class="work-card-title">Ethereal Mirage</h3>
+                    <p class="work-card-desc">A high-fashion digital editorial piece featuring an avant-garde gown with cascading pleated layers, intricate corsetry, and delicate floral patterns set against a moody aquatic backdrop.</p>
                     <div class="work-tech-tags">
-                        <span class="work-tech-pill">Vue.js</span>
-                        <span class="work-tech-pill">Python</span>
+                        <span class="work-tech-pill">Figma</span>
+                        <span class="work-tech-pill">Couture 3D</span>
                     </div>
                     <div class="work-card-footer-cta">
                         <span>View Case Study</span>
@@ -6071,104 +6209,170 @@
                 </div>
             </div>
         
-            <!-- CARD 6: Medium Feature (Span 5) -->
-            <div class="work-card span-5 work-reveal"
-                data-category="Furniture"
-                data-title="Neon Genesis Event"
-                data-category-label="Furniture"
-                data-year="2026"
-                data-media-type="image"
-                data-media-src="Image Codex 16 sept. 2026, 14_51_09.png"
-                data-desc="An avant-garde furniture design featuring a sculptural armchair entirely enveloped in dense, blooming floral arrangements. Crafted with a dramatic split color palette of deep azure-and-gold peonies transitioning into soft pastel blossoms, complete with floating petals, delicate butterflies, and rich volumetric lighting.."
-                data-role="Creative ""
-                data-client="Neon Genesis Conference"
-                
-            >
-                <div class="work-card-media-box">
-                    <img src="Image Codex 16 sept. 2026, 14_51_09.png" alt="Project 6" class="work-card-asset">
-                    <div class="work-card-glare"></div>
-                    <div class="work-card-overlay-gradient"></div>
-                    <div class="work-card-media-badges">
-                        <span class="work-category-badge">Furniture</span>
-                        <span class="work-year-badge">2026</span>
-                    </div>
-                    <div class="work-card-inspect-action">
-                        <span>Furniture</span>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
-                    </div>
-                </div>
-                <div class="work-card-body">
-                    <div class="work-card-index">06 / 11</div>
-                    <h3 class="work-card-title">Flower chair</h3>
-                    <p class="work-card-desc">An avant-garde furniture design featuring a sculptural armchair entirely enveloped in dense, blooming floral arrangements. Crafted with a dramatic split color palette of deep azure-and-gold peonies transitioning into soft pastel blossoms, complete with floating petals, delicate butterflies, and rich volumetric lighting..</p>
-                    
-                    <div class="work-card-footer-cta">
-                        <span>View Case Study</span>
-                        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                    </div>
-                </div>
-            </div>
-        
-            <!-- CARD 7: Large Feature (Span 7) -->
-            <div class="work-card span-7 work-reveal"
-                data-category="Purfume"
-                data-title="Rose"
-                data-category-label="Purfume"
-                data-year="2026"
-                data-media-type="image"
-                data-media-src="Image Codex 16 sept. 2026, 14_50_12.png"
-                data-desc="A high-end commercial fragrance campaign featuring a model holding an ornate perfume bottle amidst a soft-focus, blooming peony garden. Designed with warm golden hour lighting, cinematic depth of field, and rich atmospheric texturing to evoke an air of luxury and romance."
-                data-role="Digital Experience Designer"
-                data-client="Quantum Architecture Firm"
-                
-                 class="work-card-media-box">
-                    <img src="Image Codex 16 sept. 2026, 14_50_12.png" alt="Project 7" class="work-card-asset">
-                    <div class="work-card-glare"></div>
-                    <div class="work-card-overlay-gradient"></div>
-                    <div class="work-card-media-badges">
-                        <span class="work-category-badge">Purfume</span>
-                        <span class="work-year-badge">2026</span>
-                    </div>
-                    <div class="work-card-inspect-action">
-                        <span>Purfume</span>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
-                    </div>
-                </div>
-                
-            </div>
+            <!-- PROJECT 08: SPRING COLLECTION (Bag) -->
             <div class="work-card span-4 work-reveal"
-                data-category="Bag"
-                data-title="Lumina Bag"
-                data-category-label="E-Commerce"
+                data-category="bag"
+                data-title="Spring Collection Bag"
+                data-category-label="Bag"
                 data-year="2026"
                 data-media-type="image"
-                data-media-src="1.jpeg"
-                data-desc="A premium e-commerce experience featuring  product viewers, , and a high-conversion dark-themed storefront design with glowing accent elements."
-                data-role="E-Commerce"
+                data-media-src="Image Codex 16 sept. 2026, 14_59_57.png"
+                data-desc="A premium e-commerce experience featuring 3D product viewers, interactive product showcases with 360-degree rotation, floating neon product cards, and a high-conversion dark-themed storefront design with glowing accent elements."
+                data-role="Commerce Experience Architect"
                 data-client="Lumina Retail"
-                data-tech=" Shopify"
-                data-format="E-Commerce Platform"
+                data-tech="Three.js · WebGL"
+                data-format="Interactive Product Experience"
             >
                 <div class="work-card-media-box">
-                    <img src="1.jpeg" alt="Project 4" class="work-card-asset">
+                    <img src="Image Codex 16 sept. 2026, 14_59_57.png" alt="Spring Collection Bag" class="work-card-asset" loading="lazy">
                     <div class="work-card-glare"></div>
+                    <div class="work-card-sheen"></div>
                     <div class="work-card-overlay-gradient"></div>
                     <div class="work-card-media-badges">
                         <span class="work-category-badge">Bag</span>
                         <span class="work-year-badge">2026</span>
                     </div>
                     <div class="work-card-inspect-action">
-                        <span>Bag</span>
+                        <span>Inspect Project</span>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
                     </div>
                 </div>
                 <div class="work-card-body">
-                    <div class="work-card-index">04 / 11</div>
-                    <h3 class="work-card-title">Lumina Bag</h3>
-                    <p class="work-card-desc">A premium e-commerce experience featuring  product viewers, , and a high-conversion dark-themed storefront design with glowing accent elements.</p>
+                    <div class="work-card-index">Archive // 08</div>
+                    <h3 class="work-card-title">Spring Collection Bag</h3>
+                    <p class="work-card-desc">A premium luxury handbag experience featuring interactive product showcases, 360-degree rotation, and high-conversion editorial presentation.</p>
                     <div class="work-tech-tags">
-                        
-                        <span class="work-tech-pill">Shopify</span>
+                        <span class="work-tech-pill">Three.js</span>
+                        <span class="work-tech-pill">WebGL</span>
+                    </div>
+                    <div class="work-card-footer-cta">
+                        <span>View Case Study</span>
+                        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- PROJECT 09: ECLAT DE RUBIS (Perfume) -->
+            <div class="work-card span-4 work-reveal"
+                data-category="perfume"
+                data-title="Éclat de Rubis"
+                data-category-label="Perfume"
+                data-year="2026"
+                data-media-type="image"
+                data-media-src="Image Codex 16 sept. 2026, 14_51_15.png"
+                data-desc="A luxury commercial fragrance campaign featuring an ornate amber-toned perfume bottle nestled among crystal prisms, fresh cherries, and rich forest foliage. Designed with dramatic, warm god-ray lighting, luminous refraction effects, and floating dust particles to evoke absolute elegance and mystery."
+                data-role="Visual Director & 3D Artist"
+                data-client="Rubis Parfums Paris"
+                data-tech="Cinema 4D · Octane · Shaders"
+                data-format="Luxury Commercial Campaign"
+            >
+                <div class="work-card-media-box">
+                    <img src="Image Codex 16 sept. 2026, 14_51_15.png" alt="Éclat de Rubis Fragrance" class="work-card-asset" loading="lazy">
+                    <div class="work-card-glare"></div>
+                    <div class="work-card-sheen"></div>
+                    <div class="work-card-overlay-gradient"></div>
+                    <div class="work-card-media-badges">
+                        <span class="work-category-badge">Perfume</span>
+                        <span class="work-year-badge">2026</span>
+                    </div>
+                    <div class="work-card-inspect-action">
+                        <span>Inspect Project</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+                    </div>
+                </div>
+                <div class="work-card-body">
+                    <div class="work-card-index">Archive // 09</div>
+                    <h3 class="work-card-title">Éclat de Rubis</h3>
+                    <p class="work-card-desc">A luxury commercial fragrance campaign featuring an ornate amber perfume bottle nestled among crystal prisms, fresh cherries, and foliage with dramatic god-ray refraction.</p>
+                    <div class="work-tech-tags">
+                        <span class="work-tech-pill">Cinema 4D</span>
+                        <span class="work-tech-pill">Octane Shaders</span>
+                    </div>
+                    <div class="work-card-footer-cta">
+                        <span>View Case Study</span>
+                        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- PROJECT 10: FLOWER CHAIR (Furniture) -->
+            <div class="work-card span-4 work-reveal"
+                data-category="furniture"
+                data-title="Flower Chair"
+                data-category-label="Furniture"
+                data-year="2026"
+                data-media-type="image"
+                data-media-src="Image Codex 16 sept. 2026, 14_51_09.png"
+                data-desc="An avant-garde furniture design featuring a sculptural armchair entirely enveloped in dense, blooming floral arrangements. Crafted with a dramatic split color palette of deep azure-and-gold peonies transitioning into soft pastel blossoms, complete with floating petals, delicate butterflies, and rich volumetric lighting."
+                data-role="Creative Director"
+                data-client="Neon Genesis Exhibition"
+                data-tech="3D Sculpture · Octane Render"
+                data-format="Avant-Garde Furniture Art"
+            >
+                <div class="work-card-media-box">
+                    <img src="Image Codex 16 sept. 2026, 14_51_09.png" alt="Flower Chair - Sculptural Armchair" class="work-card-asset" loading="lazy">
+                    <div class="work-card-glare"></div>
+                    <div class="work-card-sheen"></div>
+                    <div class="work-card-overlay-gradient"></div>
+                    <div class="work-card-media-badges">
+                        <span class="work-category-badge">Furniture</span>
+                        <span class="work-year-badge">2026</span>
+                    </div>
+                    <div class="work-card-inspect-action">
+                        <span>Inspect Project</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+                    </div>
+                </div>
+                <div class="work-card-body">
+                    <div class="work-card-index">Archive // 10</div>
+                    <h3 class="work-card-title">Flower Chair</h3>
+                    <p class="work-card-desc">An avant-garde furniture design featuring a sculptural armchair enveloped in dense blooming floral arrangements with split azure-and-gold peonies and soft pastel blossoms.</p>
+                    <div class="work-tech-tags">
+                        <span class="work-tech-pill">Sculptural 3D</span>
+                        <span class="work-tech-pill">Octane</span>
+                    </div>
+                    <div class="work-card-footer-cta">
+                        <span>View Case Study</span>
+                        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- PROJECT 11: ROSE PETALS (Perfume) -->
+            <div class="work-card span-4 work-reveal"
+                data-category="perfume"
+                data-title="Rose Petals Bloom"
+                data-category-label="Perfume"
+                data-year="2026"
+                data-media-type="image"
+                data-media-src="Image Codex 16 sept. 2026, 14_50_12.png"
+                data-desc="A high-end commercial fragrance campaign featuring a model holding an ornate perfume bottle amidst a soft-focus, blooming peony garden. Designed with warm golden hour lighting, cinematic depth of field, and rich atmospheric texturing to evoke an air of luxury and romance."
+                data-role="Digital Experience Designer"
+                data-client="Quantum Fragrance Atelier"
+                data-tech="Cinema 4D · Octane"
+                data-format="Commercial Visual Campaign"
+            >
+                <div class="work-card-media-box">
+                    <img src="Image Codex 16 sept. 2026, 14_50_12.png" alt="Rose Petals Bloom Fragrance" class="work-card-asset" loading="lazy">
+                    <div class="work-card-glare"></div>
+                    <div class="work-card-sheen"></div>
+                    <div class="work-card-overlay-gradient"></div>
+                    <div class="work-card-media-badges">
+                        <span class="work-category-badge">Perfume</span>
+                        <span class="work-year-badge">2026</span>
+                    </div>
+                    <div class="work-card-inspect-action">
+                        <span>Inspect Project</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+                    </div>
+                </div>
+                <div class="work-card-body">
+                    <div class="work-card-index">Archive // 11</div>
+                    <h3 class="work-card-title">Rose Petals Bloom</h3>
+                    <p class="work-card-desc">A high-end commercial fragrance campaign featuring an ornate perfume bottle amidst a soft-focus blooming peony garden with warm golden hour lighting and cinematic atmosphere.</p>
+                    <div class="work-tech-tags">
+                        <span class="work-tech-pill">Cinema 4D</span>
+                        <span class="work-tech-pill">Octane Render</span>
                     </div>
                     <div class="work-card-footer-cta">
                         <span>View Case Study</span>
@@ -6177,8 +6381,50 @@
                 </div>
             </div>
 
-            
+            <!-- PROJECT 12: LUMINA BAG (Bag) -->
+            <div class="work-card span-4 work-reveal"
+                data-category="bag"
+                data-title="Lumina Bag"
+                data-category-label="Bag"
+                data-year="2026"
+                data-media-type="image"
+                data-media-src="1.jpeg"
+                data-desc="A premium e-commerce experience featuring 3D product viewers, real-time lighting physics, and a high-conversion dark-themed storefront design with glowing accent elements."
+                data-role="E-Commerce Architect"
+                data-client="Lumina Retail"
+                data-tech="Shopify · Three.js"
+                data-format="E-Commerce Platform"
+            >
+                <div class="work-card-media-box">
+                    <img src="1.jpeg" alt="Lumina Bag" class="work-card-asset" loading="lazy">
+                    <div class="work-card-glare"></div>
+                    <div class="work-card-sheen"></div>
+                    <div class="work-card-overlay-gradient"></div>
+                    <div class="work-card-media-badges">
+                        <span class="work-category-badge">Bag</span>
+                        <span class="work-year-badge">2026</span>
+                    </div>
+                    <div class="work-card-inspect-action">
+                        <span>Inspect Project</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+                    </div>
+                </div>
+                <div class="work-card-body">
+                    <div class="work-card-index">Archive // 12</div>
+                    <h3 class="work-card-title">Lumina Bag</h3>
+                    <p class="work-card-desc">A premium e-commerce experience featuring 3D product viewers, real-time lighting physics, and a high-conversion dark-themed storefront design with glowing accent elements.</p>
+                    <div class="work-tech-tags">
+                        <span class="work-tech-pill">Shopify</span>
+                        <span class="work-tech-pill">Three.js</span>
+                    </div>
+                    <div class="work-card-footer-cta">
+                        <span>View Case Study</span>
+                        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
+                </div>
+            </div>
 
+        </div>
             
 
         <!-- Work Section Bottom CTA Dock -->
@@ -6896,13 +7142,28 @@ Professional with AI Prompt
                 </svg>
             </button>
 
+            <!-- Navigation Controls -->
+            <button class="work-modal-nav-btn prev" id="modalPrevBtn" aria-label="Previous Project">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+            <button class="work-modal-nav-btn next" id="modalNextBtn" aria-label="Next Project">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+
             <div class="work-modal-media-wrap" id="modalMediaWrap">
                 <!-- Dynamically populated media -->
             </div>
 
             <div class="work-modal-details">
                 <div class="work-modal-header-meta">
-                    <span class="work-modal-category" id="modalCategory">Category</span>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="work-modal-category" id="modalCategory">Category</span>
+                        <span class="work-modal-counter" id="modalCounter">01 / 12</span>
+                    </div>
                     <span class="work-year-badge" id="modalYear">2026</span>
                 </div>
 
